@@ -1,8 +1,10 @@
 enum COMMAND_TYPE {
-  WRONG = 0,
-  MD = 1,
-  DW = 2,
-  DR = 3
+  WRONG,
+  MD,
+  DW,
+  DR,
+  RV,
+  WV
 };
 
 struct COMMAND {
@@ -18,6 +20,7 @@ int tokenCount;
 COMMAND cmd;
 String result = "";
 unsigned int lastMillis = 0;
+String variables[10];
 
 
 void setup() {
@@ -77,6 +80,12 @@ COMMAND_TYPE cmdToEnum(String command){
     ct = DW;
   } else if (command == "dr") {
     ct = DR;
+  }
+  else if (command == "rv") {
+    ct = RV;
+  }
+  else if (command == "wv") {
+  ct = WV;
   };
 
   return ct;
@@ -99,6 +108,18 @@ void processCommand(COMMAND cmd)
         int value = digitalRead(cmd.pin);
         Serial.println(value);
       }; break;
+    case RV: {
+        Serial.println("Read variable: ");
+        Serial.println(variables[cmd.pin]);
+      }; break;
+    case WV: {
+        Serial.print("Write variable (");
+        Serial.print(cmd.pin);
+        Serial.print(", ");
+        Serial.print(cmd.arguments);
+        Serial.println("): ");
+        variables[cmd.pin] = cmd.arguments;
+      }; break;      
   }
 }
 
@@ -107,12 +128,12 @@ COMMAND parseTokens(String* tokens, int size)
     COMMAND cmd;
     cmd.isValid = false;
 
-    if (size > 2 && (tokens[1] == "md" || tokens[1] == "dr" || tokens[1] == "dw"))
+    if (size > 2 && (tokens[1] == "md" || tokens[1] == "dr" || tokens[1] == "dw" || tokens[1] == "rv" || tokens[1] == "wv"))
     {
         
         cmd.command = cmdToEnum(tokens[1]);
         cmd.pin = tokens[2].toInt();
-        if(cmd.pin > 0)
+        if(cmd.pin >= 0)
         {
           if(tokens[1] == "md" && size == 4)
           {
@@ -129,6 +150,13 @@ COMMAND parseTokens(String* tokens, int size)
               cmd.isValid = true;
           } else if(tokens[1] == "dr" && size == 3) {
             cmd.isValid = true;
+          }
+          else if(tokens[1] == "rv"  && size == 3)
+          {
+            cmd.isValid = true;
+          } else if (tokens[1] == "wv" && size == 4) {
+            cmd.arguments = tokens[3];
+            cmd.isValid = true;  
           }
           
         }
@@ -149,7 +177,9 @@ void loop() {
     digitalWrite(12, b);
     b = !b;
   }
-  
+
+  variables[0] = millis();
+  variables[1] = b;
 
 
   
@@ -161,6 +191,7 @@ void loop() {
     Serial.println(buffer);
     // ["", "mr", "8", "i"]
     tokenCount = splitString(tokens, 10, buffer);
+    Serial.print("Token count: ");
     Serial.println(tokenCount);
     for (int i = 0; i < tokenCount; i++)
     {
@@ -168,8 +199,9 @@ void loop() {
     }
   
     cmd = parseTokens(tokens, tokenCount);
+    Serial.print("Is valid: ");
     Serial.println(cmd.isValid);
     processCommand(cmd);
   }
-  
+ 
 }

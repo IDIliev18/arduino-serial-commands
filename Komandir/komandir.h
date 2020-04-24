@@ -19,3 +19,5 @@ int splitString(String *, int, String, char);
 COMMAND_TYPE cmdToEnum(String);
 void processCommand(COMMAND);
 COMMAND parseTokens(String*, int);
+bool writeVar(int, String);
+String readVar(int);

@@ -27,8 +27,8 @@ void loop() {
     b = !b;
   }
 
-//  variables[0] = millis();
-//  variables[1] = b;
+  writeVar(0, String(millis()));
+  writeVar(1, String(b));
 
 
   buffer = checkForToken("^\n");
@@ -38,7 +38,7 @@ void loop() {
     Serial.println(buffer.length());
     Serial.println(buffer);
     // ["", "mr", "8", "i"]
-    tokenCount = splitString(tokens, 10, buffer, '\n');
+    tokenCount = splitString(tokens, 10, buffer, '/');
     Serial.print("Token count: ");
     Serial.println(tokenCount);
     for (int i = 0; i < tokenCount; i++)

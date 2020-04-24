@@ -1,8 +1,10 @@
 #include <Arduino.h>
 #include "komandir.h"
 
-String variables[10];
+const int VAR_COUNT = 10;
+String variables[VAR_COUNT];
 String result = "";
+
 
 String checkForToken(String terminators)
 {
@@ -37,7 +39,7 @@ int splitString(String * strArray, int size, String str, char terminator = '/')
     token = str.substring(lastDelimPos, delimPos);
     lastDelimPos = delimPos + 1;
     strArray[index++] = token;    
-  } while(delimPos!=-1);
+  } while(delimPos != -1);
   
   return index;
 }
@@ -97,7 +99,7 @@ void processCommand(COMMAND cmd)
 COMMAND parseTokens(String* tokens, int size)
 {
     COMMAND cmd;
-    cmd.isValid = false;
+    cmd.isValid = false;    
 
     if (size > 2 && (tokens[1] == "md" || tokens[1] == "dr" || tokens[1] == "dw" || tokens[1] == "rv" || tokens[1] == "wv"))
     {
@@ -134,4 +136,23 @@ COMMAND parseTokens(String* tokens, int size)
     }
 
     return cmd;
+}
+
+bool writeVar(int index, String value)
+{
+  if(index < VAR_COUNT)
+  {
+    variables[index] = value;
+    return true;
+  }
+  return false;
+}
+
+String readVar(int index)
+{
+  if(index < VAR_COUNT)
+  {
+    return variables[index];
+  }
+  return "";
 }
